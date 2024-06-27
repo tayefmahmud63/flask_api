@@ -2,23 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Data</title>
+    <title>Data Display</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            text-align: center;
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
-    <h1>User Data</h1>
-    <table border="1">
+    <h1>Data Display</h1>
+    <table>
         <thead>
             <tr>
-                <th>User ID</th>
-                <th>USB Data</th>
+                {% for user_id in user_ids %}
+                <th>{{ user_id }}</th>
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for user_id, usb_data in data %}
+            {% for row in usb_data %}
             <tr>
-                <td>{{ user_id }}</td>
-                <td>{{ usb_data }}</td>
+                {% for data in row %}
+                <td>{{ data }}</td>
+                {% endfor %}
             </tr>
             {% endfor %}
         </tbody>

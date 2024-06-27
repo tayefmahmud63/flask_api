@@ -8,9 +8,8 @@ def init_db():
     with sqlite3.connect('data.db') as conn:
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS user_data (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            user_id TEXT NOT NULL,
-                            usb_data TEXT NOT NULL)''')
+                            user_id TEXT,
+                            usb_data TEXT)''')
         conn.commit()
 
 # Initialize the database
@@ -37,9 +36,20 @@ def receive_data():
 def index():
     with sqlite3.connect('data.db') as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT user_id, usb_data FROM user_data')
+        cursor.execute('SELECT user_id, GROUP_CONCAT(usb_data, ",") FROM user_data GROUP BY user_id')
         data = cursor.fetchall()
-    return render_template('index.html', data=data)
+
+    # Transpose the data to match the desired format
+    user_ids = [row[0] for row in data]
+    usb_data_rows = [row[1].split(',') for row in data]
+
+    max_length = max(len(usb_data) for usb_data in usb_data_rows)
+    for usb_data in usb_data_rows:
+        usb_data.extend([None] * (max_length - len(usb_data)))
+
+    usb_data_transposed = list(zip(*usb_data_rows))
+
+    return render_template('index.html', user_ids=user_ids, usb_data=usb_data_transposed)
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
